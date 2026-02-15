@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Math Drill</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #1a202c;
+    color: #e2e8f0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px;
+  }
+
+  /* ========== START SCREEN ========== */
+  #start-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+  }
+  #start-screen h1 {
+    font-size: 2.2em;
+    color: #63b3ed;
+    margin-bottom: 8px;
+  }
+  #start-screen .subtitle {
+    font-size: 1em;
+    color: #a0aec0;
+    margin-bottom: 36px;
+  }
+  #start-screen input[type="text"] {
+    width: 260px;
+    padding: 12px 16px;
+    font-size: 1.15em;
+    border: 2px solid #4a5568;
+    border-radius: 10px;
+    background: #2d3748;
+    color: #f7fafc;
+    text-align: center;
+    outline: none;
+    margin-bottom: 20px;
+  }
+  #start-screen input[type="text"]:focus {
+    border-color: #63b3ed;
+  }
+  #start-screen input[type="text"]::placeholder {
+    color: #718096;
+  }
+  .start-btn {
+    padding: 14px 40px;
+    font-size: 1.15em;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    background: #63b3ed;
+    color: #1a202c;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .start-btn:hover { background: #90cdf4; }
+
+  /* ========== DRILL SCREEN ========== */
+  #drill-screen { display: none; width: 100%; max-width: 520px; }
+
+  .header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .header .counter { font-size: 0.95em; color: #a0aec0; font-weight: 600; }
+
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #2d3748;
+    border-radius: 4px;
+    margin-bottom: 40px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    width: 0%;
+    height: 100%;
+    background: #63b3ed;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* Flashcard */
+  .card {
+    background: #2d3748;
+    border-radius: 16px;
+    padding: 44px 36px 48px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  .card .category {
+    font-size: 0.85em;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 24px;
+  }
+  .card .problem {
+    font-size: 2.8em;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    color: #f7fafc;
+    margin-bottom: 32px;
+    line-height: 1.2;
+  }
+  .card .question-text {
+    font-size: 1.25em;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-bottom: 20px;
+  }
+  .shape-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  .card .hint {
+    font-size: 0.88em;
+    color: #a0aec0;
+    margin-bottom: 18px;
+  }
+  .card .input-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+  }
+  .card .unit-label {
+    font-size: 1em;
+    color: #a0aec0;
+  }
+  .card input[type="number"] {
+    width: 150px;
+    padding: 12px 16px;
+    font-size: 1.5em;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    border: 2px solid #4a5568;
+    border-radius: 10px;
+    background: #1a202c;
+    color: #f7fafc;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+  .card input[type="number"]:focus {
+    border-color: #63b3ed;
+  }
+  .card input::-webkit-inner-spin-button,
+  .card input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
+  .card .submit-btn {
+    padding: 12px 28px;
+    font-size: 1.1em;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    background: #63b3ed;
+    color: #1a202c;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .card .submit-btn:hover { background: #90cdf4; }
+
+  .attempts {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+  }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #4a5568;
+    transition: background 0.3s;
+  }
+  .dot.active { background: #63b3ed; }
+  .dot.wrong { background: #fc8181; }
+
+  .reveal-text {
+    margin-top: 16px;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #fc8181;
+    min-height: 1.5em;
+  }
+
+  /* ========== ANIMATIONS ========== */
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    15% { transform: translateX(-8px); }
+    30% { transform: translateX(8px); }
+    45% { transform: translateX(-6px); }
+    60% { transform: translateX(6px); }
+    75% { transform: translateX(-3px); }
+    90% { transform: translateX(3px); }
+  }
+  .shake {
+    animation: shake 0.5s ease-in-out;
+  }
+
+  @keyframes green-pulse {
+    0% { box-shadow: 0 4px 24px rgba(0,0,0,0.3); }
+    40% { box-shadow: 0 0 30px rgba(72, 187, 120, 0.5), 0 4px 24px rgba(0,0,0,0.3); border-color: #48bb78; }
+    100% { box-shadow: 0 4px 24px rgba(0,0,0,0.3); border-color: transparent; }
+  }
+  .green-flash {
+    animation: green-pulse 0.6s ease-in-out;
+    border: 2px solid #48bb78;
+  }
+
+  @keyframes red-border-pulse {
+    0% { border-color: #4a5568; }
+    30% { border-color: #fc8181; }
+    100% { border-color: #4a5568; }
+  }
+  .input-wrong {
+    animation: red-border-pulse 0.5s ease-in-out;
+  }
+
+  /* ========== SUMMARY SCREEN ========== */
+  #summary-screen {
+    display: none;
+    width: 100%;
+    max-width: 520px;
+    text-align: center;
+  }
+  .summary-card {
+    background: #2d3748;
+    border-radius: 16px;
+    padding: 40px 36px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    margin-bottom: 24px;
+  }
+  .summary-card h2 {
+    font-size: 1.6em;
+    color: #63b3ed;
+    margin-bottom: 8px;
+  }
+  .score-big {
+    font-size: 2.4em;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 4px;
+  }
+  .score-big.great { color: #48bb78; }
+  .score-big.good { color: #ecc94b; }
+  .score-big.needs-work { color: #fc8181; }
+  .score-pct {
+    font-size: 1.1em;
+    color: #a0aec0;
+    margin-bottom: 24px;
+  }
+
+  .missed-section {
+    text-align: left;
+    margin-top: 20px;
+  }
+  .missed-section h3 {
+    font-size: 1em;
+    color: #fc8181;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .missed-item {
+    background: #1a202c;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .missed-item .problem-text { color: #e2e8f0; }
+  .missed-item .your-answer { color: #fc8181; }
+  .missed-item .correct-answer { color: #48bb78; }
+
+  .new-drill-btn {
+    padding: 14px 40px;
+    font-size: 1.15em;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    background: #63b3ed;
+    color: #1a202c;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 8px;
+  }
+  .new-drill-btn:hover { background: #90cdf4; }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 560px) {
+    .card { padding: 32px 20px 36px; }
+    .card .problem { font-size: 2em; }
+    .card input[type="number"] { width: 120px; font-size: 1.3em; }
+    .summary-card { padding: 28px 20px; }
+    .score-big { font-size: 1.8em; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== START SCREEN ========== -->
+<div id="start-screen">
+  <h1>Daily Math Drill</h1>
+  <p class="subtitle">15 problems &mdash; flashcard style</p>
+  <button class="start-btn" id="start-btn">Start Drill</button>
+</div>
+
+<!-- ========== DRILL SCREEN ========== -->
+<div id="drill-screen">
+  <div class="header">
+    <span class="counter" id="drill-counter"></span>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+  <div class="card" id="card">
+    <div class="category" id="card-category"></div>
+    <div id="card-body"></div>
+    <div class="input-row">
+      <input type="number" id="answer-input" placeholder="?">
+      <span class="unit-label" id="unit-label"></span>
+      <button class="submit-btn" id="go-btn">Go</button>
+    </div>
+    <div class="attempts" id="attempts">
+      <div class="dot" id="dot0"></div>
+      <div class="dot" id="dot1"></div>
+    </div>
+    <div class="reveal-text" id="reveal-text"></div>
+  </div>
+</div>
+
+<!-- ========== SUMMARY SCREEN ========== -->
+<div id="summary-screen">
+  <div class="summary-card">
+    <h2>Drill Complete!</h2>
+    <div class="score-big" id="score-big"></div>
+    <div class="score-pct" id="score-pct"></div>
+    <div class="missed-section" id="missed-section">
+      <h3>Missed Problems</h3>
+      <div id="missed-list"></div>
+    </div>
+  </div>
+  <button class="new-drill-btn" id="new-drill-btn">New Drill</button>
+</div>
+
+<script>
+// ============================================================
+// DATA & STATE
+// ============================================================
+const PYTH_TRIPLES = [
+  [3,4,5],[5,12,13],[6,8,10],[8,15,17],[9,12,15],
+  [7,24,25],[20,21,29],[9,40,41],[12,16,20],[15,20,25]
+];
+
+let problems = [];
+let currentIndex = 0;
+let attemptsUsed = 0;
+let results = []; // { problem, userAnswers, correct, answer, category }
+
+// ============================================================
+// UTILITY
+// ============================================================
+function rand(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ============================================================
+// PROBLEM GENERATORS
+// ============================================================
+function gen1x1() {
+  const items = [];
+  for (let i = 0; i < 2; i++) {
+    const a = rand(2, 9), b = rand(2, 9);
+    items.push({
+      category: 'One-Digit \u00d7 One-Digit',
+      display: `${a} \u00d7 ${b} =`,
+      answer: a * b,
+      problemText: `${a} \u00d7 ${b}`,
+      type: 'arithmetic'
+    });
+  }
+  return items;
+}
+
+function gen2x1() {
+  const items = [];
+  for (let i = 0; i < 2; i++) {
+    const a = rand(11, 49), b = rand(2, 9);
+    items.push({
+      category: 'Two-Digit \u00d7 One-Digit',
+      display: `${a} \u00d7 ${b} =`,
+      answer: a * b,
+      problemText: `${a} \u00d7 ${b}`,
+      type: 'arithmetic'
+    });
+  }
+  return items;
+}
+
+function gen2div1() {
+  const items = [];
+  for (let i = 0; i < 2; i++) {
+    const divisor = rand(2, 9);
+    const quotient = rand(3, Math.min(Math.floor(99 / divisor), 19));
+    const dividend = divisor * quotient;
+    items.push({
+      category: 'Two-Digit \u00f7 One-Digit',
+      display: `${dividend} \u00f7 ${divisor} =`,
+      answer: quotient,
+      problemText: `${dividend} \u00f7 ${divisor}`,
+      type: 'arithmetic'
+    });
+  }
+  return items;
+}
+
+function gen2xTens() {
+  const items = [];
+  for (let i = 0; i < 1; i++) {
+    const a = rand(11, 45);
+    const b = pick([10, 20, 30, 40, 50]);
+    items.push({
+      category: 'Two-Digit \u00d7 Multiple of 10',
+      display: `${a} \u00d7 ${b} =`,
+      answer: a * b,
+      problemText: `${a} \u00d7 ${b}`,
+      type: 'arithmetic'
+    });
+  }
+  return items;
+}
+
+function genHundredsX() {
+  const items = [];
+  for (let i = 0; i < 1; i++) {
+    const a = pick([100, 200, 300, 400, 500]);
+    const b = rand(2, 9);
+    items.push({
+      category: 'Hundreds \u00d7 Single Digit',
+      display: `${a} \u00d7 ${b} =`,
+      answer: a * b,
+      problemText: `${a} \u00d7 ${b}`,
+      type: 'arithmetic'
+    });
+  }
+  return items;
+}
+
+function genTensHundredsDiv() {
+  const items = [];
+  // tens
+  for (let i = 0; i < 1; i++) {
+    const divisor = rand(2, 9);
+    const quotient = pick([10, 20, 30]);
+    const dividend = divisor * quotient;
+    items.push({
+      category: 'Tens & Hundreds \u00f7 Single Digit',
+      display: `${dividend} \u00f7 ${divisor} =`,
+      answer: quotient,
+      problemText: `${dividend} \u00f7 ${divisor}`,
+      type: 'arithmetic'
+    });
+  }
+  // hundreds
+  for (let i = 0; i < 1; i++) {
+    const divisor = rand(2, 9);
+    const quotient = pick([100, 200]);
+    const dividend = divisor * quotient;
+    items.push({
+      category: 'Tens & Hundreds \u00f7 Single Digit',
+      display: `${dividend} \u00f7 ${divisor} =`,
+      answer: quotient,
+      problemText: `${dividend} \u00f7 ${divisor}`,
+      type: 'arithmetic'
+    });
+  }
+  return items;
+}
+
+function genRectArea() {
+  const w = rand(3, 15), h = rand(3, 12);
+  return [{
+    category: 'Rectangle \u2014 Area',
+    answer: w * h,
+    problemText: `Rectangle ${w} \u00d7 ${h} area`,
+    type: 'rect-area',
+    w, h,
+    unit: 'sq units'
+  }];
+}
+
+function genRectPerimeter() {
+  const w = rand(3, 15), h = rand(3, 12);
+  return [{
+    category: 'Rectangle \u2014 Perimeter',
+    answer: 2 * (w + h),
+    problemText: `Rectangle ${w} \u00d7 ${h} perimeter`,
+    type: 'rect-perimeter',
+    w, h,
+    unit: 'units'
+  }];
+}
+
+function genTriangleArea() {
+  let base = rand(4, 16);
+  let height = (base % 2 === 0) ? rand(3, 14) : rand(2, 7) * 2;
+  return [{
+    category: 'Triangle \u2014 Area',
+    answer: (base * height) / 2,
+    problemText: `Triangle base=${base} h=${height} area`,
+    type: 'tri-area',
+    base, height,
+    unit: 'sq units'
+  }];
+}
+
+function genTrianglePerimeter() {
+  const items = [];
+  for (let i = 0; i < 2; i++) {
+    const triple = pick(PYTH_TRIPLES);
+    const sides = shuffle([triple[0], triple[1], triple[2]]);
+    items.push({
+      category: 'Triangle \u2014 Perimeter',
+      answer: sides[0] + sides[1] + sides[2],
+      problemText: `Triangle sides ${sides[0]}, ${sides[1]}, ${sides[2]}`,
+      type: 'tri-perimeter',
+      sides,
+      unit: 'units'
+    });
+  }
+  return items;
+}
+
+// ============================================================
+// SVG RENDERERS
+// ============================================================
+function svgRectArea(w, h) {
+  return `
+    <div class="question-text">Find the area of this rectangle</div>
+    <div class="shape-container">
+      <svg width="260" height="170" viewBox="0 0 260 170">
+        <rect x="40" y="20" width="180" height="110" rx="2"
+              fill="none" stroke="#63b3ed" stroke-width="2.5"/>
+        <text x="130" y="152" text-anchor="middle"
+              font-size="17" font-weight="bold" fill="#90cdf4">${w}</text>
+        <text x="232" y="80" text-anchor="start"
+              font-size="17" font-weight="bold" fill="#90cdf4">${h}</text>
+      </svg>
+    </div>`;
+}
+
+function svgRectPerimeter(w, h) {
+  return `
+    <div class="question-text">Find the perimeter of this rectangle</div>
+    <div class="shape-container">
+      <svg width="260" height="170" viewBox="0 0 260 170">
+        <rect x="40" y="20" width="180" height="110" rx="2"
+              fill="none" stroke="#63b3ed" stroke-width="2.5"/>
+        <text x="130" y="152" text-anchor="middle"
+              font-size="17" font-weight="bold" fill="#90cdf4">${w}</text>
+        <text x="232" y="80" text-anchor="start"
+              font-size="17" font-weight="bold" fill="#90cdf4">${h}</text>
+      </svg>
+    </div>`;
+}
+
+function svgTriangleArea(base, height) {
+  // Right triangle with right angle at bottom-left
+  const svgW = 260, svgH = 190;
+  const bx = 40, by = 155;             // bottom-left corner (right angle)
+  const rx = 220, ry = 155;            // bottom-right
+  const tx = 40, ty = 30;              // top-left
+  return `
+    <div class="question-text">Find the area of this triangle</div>
+    <div class="shape-container">
+      <svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">
+        <polygon points="${bx},${by} ${rx},${ry} ${tx},${ty}"
+                 fill="none" stroke="#f6ad55" stroke-width="2.5"/>
+        <rect x="${bx}" y="${by - 12}" width="12" height="12"
+              fill="none" stroke="#fc8181" stroke-width="1"/>
+        <text x="${(bx + rx) / 2}" y="${by + 20}" text-anchor="middle"
+              font-size="15" font-weight="bold" fill="#f6ad55">${base}</text>
+        <text x="${bx - 8}" y="${(by + ty) / 2 + 4}" text-anchor="end"
+              font-size="15" font-weight="bold" fill="#fc8181">${height}</text>
+      </svg>
+    </div>
+`;
+}
+
+function svgTrianglePerimeter(sides) {
+  const svgW = 260, svgH = 180;
+  const cx = 130, bottom = 150, top = 30;
+  const halfBase = 85;
+  const px1 = cx - halfBase, py1 = bottom;
+  const px2 = cx + halfBase, py2 = bottom;
+  const px3 = cx + 15, py3 = top;
+  return `
+    <div class="question-text">Find the perimeter of this triangle</div>
+    <div class="shape-container">
+      <svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">
+        <polygon points="${px1},${py1} ${px2},${py2} ${px3},${py3}"
+                 fill="none" stroke="#68d391" stroke-width="2.5"/>
+        <text x="${(px1 + px2) / 2}" y="${py1 + 20}" text-anchor="middle"
+              font-size="15" font-weight="bold" fill="#68d391">${sides[0]}</text>
+        <text x="${(px2 + px3) / 2 + 14}" y="${(py2 + py3) / 2}" text-anchor="start"
+              font-size="15" font-weight="bold" fill="#68d391">${sides[1]}</text>
+        <text x="${(px1 + px3) / 2 - 14}" y="${(py1 + py3) / 2}" text-anchor="end"
+              font-size="15" font-weight="bold" fill="#68d391">${sides[2]}</text>
+      </svg>
+    </div>`;
+}
+
+// ============================================================
+// DRILL LOGIC
+// ============================================================
+function generateProblems() {
+  problems = [
+    ...gen1x1(),
+    ...gen2x1(),
+    ...gen2div1(),
+    ...gen2xTens(),
+    ...genHundredsX(),
+    ...genTensHundredsDiv(),
+    ...genRectArea(),
+    ...genRectPerimeter(),
+    ...genTriangleArea(),
+    ...genTrianglePerimeter()
+  ];
+  shuffle(problems);
+}
+
+function startDrill() {
+  generateProblems();
+  currentIndex = 0;
+  results = [];
+  attemptsUsed = 0;
+
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('summary-screen').style.display = 'none';
+  document.getElementById('drill-screen').style.display = 'flex';
+  document.getElementById('drill-screen').style.flexDirection = 'column';
+  document.getElementById('drill-screen').style.alignItems = 'center';
+
+  showProblem();
+}
+
+function showProblem() {
+  if (currentIndex >= problems.length) {
+    showSummary();
+    return;
+  }
+
+  const p = problems[currentIndex];
+  attemptsUsed = 0;
+
+  // Update header
+  document.getElementById('drill-counter').textContent =
+    `${currentIndex + 1} / ${problems.length}`;
+  const pct = (currentIndex / problems.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  // Category
+  document.getElementById('card-category').textContent = p.category;
+
+  // Body
+  const body = document.getElementById('card-body');
+  if (p.type === 'arithmetic') {
+    body.innerHTML = `<div class="problem">${p.display}</div>`;
+  } else if (p.type === 'rect-area') {
+    body.innerHTML = svgRectArea(p.w, p.h);
+  } else if (p.type === 'rect-perimeter') {
+    body.innerHTML = svgRectPerimeter(p.w, p.h);
+  } else if (p.type === 'tri-area') {
+    body.innerHTML = svgTriangleArea(p.base, p.height);
+  } else if (p.type === 'tri-perimeter') {
+    body.innerHTML = svgTrianglePerimeter(p.sides);
+  }
+
+  // Unit label
+  const unitLabel = document.getElementById('unit-label');
+  if (p.unit) {
+    unitLabel.textContent = p.unit;
+    unitLabel.style.display = '';
+  } else {
+    unitLabel.textContent = '';
+    unitLabel.style.display = 'none';
+  }
+
+  // Reset input
+  const input = document.getElementById('answer-input');
+  input.value = '';
+  input.disabled = false;
+  input.classList.remove('input-wrong');
+  input.focus();
+
+  // Reset dots
+  document.getElementById('dot0').className = 'dot active';
+  document.getElementById('dot1').className = 'dot';
+
+  // Reset reveal
+  document.getElementById('reveal-text').textContent = '';
+
+  // Reset card animations
+  const card = document.getElementById('card');
+  card.classList.remove('shake', 'green-flash');
+
+  // Enable button
+  document.getElementById('go-btn').disabled = false;
+}
+
+function submitAnswer() {
+  const input = document.getElementById('answer-input');
+  const card = document.getElementById('card');
+  const p = problems[currentIndex];
+  const userVal = parseFloat(input.value);
+
+  if (input.value.trim() === '' || isNaN(userVal)) return;
+
+  const isCorrect = Math.abs(userVal - p.answer) < 0.01;
+
+  if (isCorrect) {
+    // Correct!
+    results.push({
+      problemText: p.problemText,
+      category: p.category,
+      answer: p.answer,
+      userAnswers: [userVal],
+      correct: true
+    });
+
+    input.disabled = true;
+    document.getElementById('go-btn').disabled = true;
+
+    // Green flash
+    card.classList.remove('shake', 'green-flash');
+    void card.offsetWidth; // reflow
+    card.classList.add('green-flash');
+
+    // Mark current dot green-ish (keep active color since it's correct)
+    setTimeout(() => {
+      currentIndex++;
+      showProblem();
+    }, 600);
+
+  } else {
+    // Wrong
+    attemptsUsed++;
+    card.classList.remove('shake');
+    void card.offsetWidth;
+    card.classList.add('shake');
+    input.classList.remove('input-wrong');
+    void input.offsetWidth;
+    input.classList.add('input-wrong');
+
+    if (attemptsUsed === 1) {
+      // First wrong: mark dot 0 red, dot 1 active
+      document.getElementById('dot0').className = 'dot wrong';
+      document.getElementById('dot1').className = 'dot active';
+      input.value = '';
+      input.focus();
+    } else {
+      // Second wrong: reveal answer, auto-advance
+      document.getElementById('dot1').className = 'dot wrong';
+      document.getElementById('reveal-text').textContent =
+        `Answer: ${p.answer}`;
+      input.disabled = true;
+      document.getElementById('go-btn').disabled = true;
+
+      results.push({
+        problemText: p.problemText,
+        category: p.category,
+        answer: p.answer,
+        userAnswers: [userVal],
+        correct: false
+      });
+
+      setTimeout(() => {
+        currentIndex++;
+        showProblem();
+      }, 1500);
+    }
+  }
+}
+
+function showSummary() {
+  document.getElementById('drill-screen').style.display = 'none';
+  document.getElementById('summary-screen').style.display = 'flex';
+  document.getElementById('summary-screen').style.flexDirection = 'column';
+  document.getElementById('summary-screen').style.alignItems = 'center';
+
+  // Fill progress bar to 100%
+  document.getElementById('progress-fill').style.width = '100%';
+
+  const total = results.length;
+  const correctCount = results.filter(r => r.correct).length;
+  const pct = Math.round((correctCount / total) * 100);
+
+  const scoreBig = document.getElementById('score-big');
+  scoreBig.textContent = `${correctCount} / ${total}`;
+  scoreBig.className = 'score-big ' +
+    (pct >= 90 ? 'great' : pct >= 70 ? 'good' : 'needs-work');
+
+  document.getElementById('score-pct').textContent = `${pct}%`;
+
+  // Missed problems
+  const missed = results.filter(r => !r.correct);
+  const missedSection = document.getElementById('missed-section');
+  const missedList = document.getElementById('missed-list');
+  missedList.innerHTML = '';
+
+  if (missed.length === 0) {
+    missedSection.style.display = 'none';
+  } else {
+    missedSection.style.display = '';
+    for (const m of missed) {
+      const div = document.createElement('div');
+      div.className = 'missed-item';
+      div.innerHTML = `
+        <span class="problem-text">${m.problemText}</span>
+        <span>
+          <span class="your-answer">You: ${m.userAnswers[m.userAnswers.length - 1]}</span>
+          &nbsp;&rarr;&nbsp;
+          <span class="correct-answer">${m.answer}</span>
+        </span>`;
+      missedList.appendChild(div);
+    }
+  }
+}
+
+function newDrill() {
+  document.getElementById('summary-screen').style.display = 'none';
+  document.getElementById('start-screen').style.display = 'flex';
+}
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+document.getElementById('start-btn').addEventListener('click', startDrill);
+document.getElementById('go-btn').addEventListener('click', submitAnswer);
+document.getElementById('new-drill-btn').addEventListener('click', newDrill);
+
+document.getElementById('answer-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') submitAnswer();
+});
+</script>
+
+</body>
+</html>
